@@ -101,7 +101,7 @@ export const OutroLockup: React.FC = () => {
       transform: `translateX(${shift}px) scale(${sc})`, opacity,
     }}>
       <svg viewBox="0 0 30 30" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible', transform: `rotate(${rot}deg)` }}>
-        <Arcs col="rgba(99,102,241,.62)" w={6.5} blur={2.5} opacity={1 - heal} />
+        <Arcs col="rgba(99,102,241,.4)" w={6.5} blur={2.5} opacity={1 - heal} /> {/* 데모 .62 → .4: 네온 느낌 줄임 */}
         {!ghost && <Arcs col={heal > 0.5 ? '#fff' : '#e0e7ff'} w={3.4} blur={0} opacity={(1 - heal * 0.75) * (1 - markIn)} />}
         {!ghost && <circle cx={15} cy={15} r={10.5} fill="none" stroke="#fff" strokeWidth={5.5} opacity={heal * (1 - markIn)} />}
       </svg>

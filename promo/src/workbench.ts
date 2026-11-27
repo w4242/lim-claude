@@ -3,7 +3,7 @@
 // 열린 속성: 타이틀 카드 문구·색·크기, 자막 문구. 리듬 요소(시간값·easing·카메라 경로)는 상수로 고정.
 import { Main, TITLE_CARDS } from './Main';
 import { CAPTIONS, SHOTS, TOTAL, BGM_START_S, FPS } from './timeline';
-import { SFX, BGM_VOLUME } from './Soundtrack';
+import { SFX, BGM_VOLUME, MASTER } from './Soundtrack';
 import { TitleCardUnit, TITLE_DEFAULTS } from './shots/TitleCard';
 import { CraneRise } from './shots/CraneRise';
 import { ThemeSweep } from './shots/ThemeSweep';
@@ -40,8 +40,8 @@ export const WORKBENCH = {
     props: { text: c.text }, schema: [{ type: 'textarea', key: 'text', label: '자막', default: '' }], durationProp: 'duration', cardId: 'caption', cardName: '자막',
   })),
   overlays: [],
-  sfx: SFX.map((s) => ({ from: s.from, duration: s.durationInFrames ?? 90, src: `audio/sfx/${s.src}`, volume: s.volume, label: s.note })),
-  bgm: [{ from: 0, duration: TOTAL, src: 'audio/house-vibez.mp3', volume: BGM_VOLUME, trimBefore: Math.round(BGM_START_S * FPS) }],
+  sfx: SFX.map((s) => ({ from: s.from, duration: s.durationInFrames ?? 90, src: `audio/sfx/${s.src}`, volume: Math.min(1, MASTER * s.volume), label: s.note })),
+  bgm: [{ from: 0, duration: TOTAL, src: 'audio/house-vibez.mp3', volume: MASTER * BGM_VOLUME, trimBefore: Math.round(BGM_START_S * FPS) }],
   order: ['transitions', 'captions', 'overlays'],
   original: Main,
 };

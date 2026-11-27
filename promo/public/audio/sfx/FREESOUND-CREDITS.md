@@ -10,21 +10,21 @@ Downloaded files are lossy MP3 previews, not uploader originals.
 fs-348225.mp3 — Switch Light 05.wav by tbrook
 https://freesound.org/people/tbrook/sounds/348225/
 CC0-1.0: http://creativecommons.org/publicdomain/zero/1.0/
-Edits: None recorded; update if edited.
+Edits: fs-348225-norm.mp3 = ffmpeg volume=+6.76dB (sample peak -1 dBFS 정규화), libmp3lame -q:a 2 재인코딩 (BGM 에 묻힘 — 독립 검수 A6)
 ~~~
 
 ~~~text
 fs-423798.mp3 — Little Whoosh 3 by ch_ase
 https://freesound.org/people/ch_ase/sounds/423798/
 CC0-1.0: http://creativecommons.org/publicdomain/zero/1.0/
-Edits: None recorded; update if edited.
+Edits: fs-423798-gain.mp3 = ffmpeg volume=+20dB, libmp3lame -q:a 2 재인코딩 (원본 레벨이 낮아 BGM 에 묻힘; 성분 대비 측정으로 결정)
 ~~~
 
 ~~~text
 fs-449996.mp3 — whoosh_short_mid.wav by DJT4NN3R
 https://freesound.org/people/DJT4NN3R/sounds/449996/
 CC0-1.0: http://creativecommons.org/publicdomain/zero/1.0/
-Edits: None recorded; update if edited.
+Edits: fs-449996-gain.mp3 = ffmpeg volume=+14dB, libmp3lame -q:a 2 재인코딩 (원본 레벨이 낮아 BGM 에 묻힘; 성분 대비 측정으로 결정)
 ~~~
 
 ~~~text
@@ -52,7 +52,7 @@ Edits: None recorded; update if edited.
 fs-878614.mp3 — Gem Sparkle by Qvantor
 https://freesound.org/people/Qvantor/sounds/878614/
 CC0-1.0: http://creativecommons.org/publicdomain/zero/1.0/
-Edits: None recorded; update if edited.
+Edits: fs-878614-gain.mp3 = ffmpeg volume=+6dB, libmp3lame -q:a 2 재인코딩 (원본 레벨이 낮아 BGM 에 묻힘; 성분 대비 측정으로 결정)
 ~~~
 
 ~~~text
@@ -66,6 +66,7 @@ Edits: None recorded; update if edited.
 - `fs-423798-gain.mp3` ← `fs-423798.mp3` 에 +20dB (ffmpeg volume, MP3 재인코딩). 영상에서 사용.
 - `fs-449996-gain.mp3` ← `fs-449996.mp3` 에 +14dB (ffmpeg volume, MP3 재인코딩). 영상에서 사용.
 - `fs-878614-gain.mp3` ← `fs-878614.mp3` 에 +6dB (ffmpeg volume, MP3 재인코딩). 영상에서 사용.
+- `fs-348225-norm.mp3` ← `fs-348225.mp3` 에 +6.76dB (최고 레벨 -1 dBFS 로 정규화). 영상에서 사용.
 - 모든 파일은 Freesound 의 MP3 미리듣기(손실 압축)이며 원본 WAV 가 아니다.
 
 ## 배경음악

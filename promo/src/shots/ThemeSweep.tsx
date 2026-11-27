@@ -7,6 +7,7 @@
 //   76–96 여운 '불 켜짐' (밤에만 있는 빛이 차례로) · 96–140 hold, 1.0→1.02 아주 느린 推近
 // 다시 입힌 것:
 //   - 낮/밤 세계 = lim-claude 실제 라이트·다크 캡처 (두 장의 레이아웃은 픽셀 단위로 같다 — 카드 命门)
+//   - 특写(3.6×) 구간: 오른쪽 위 영역 DSF 8 고해상도 패치(라이트·다크), 토글 층도 DSF 8 (Q2)
 //   - 토글 = 실제 토글의 트랙 층 + 손잡이 층 캡처 (손잡이만 연속 이동). 해→달 아이콘은 실제 트랙에 이미 있다
 //   - 경계의 노을 주황 → 앱 인디고 계열(primary-soft / primary), 여운 빛 = 토글 · 「추가」 버튼 · 창 테두리
 import React from 'react';
@@ -14,14 +15,14 @@ import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import { EASE, Grain, bezier, mix, ramp, velocity } from '../fixtures/Polish';
 import { springAt } from '../fixtures/Look';
 import { DARK, rgba } from '../theme';
-import { Cam, LAYOUT, PageWindow, camStyle, toScreen } from '../world';
+import { Cam, HI, LAYOUT, PageWindow, camStyle, toScreen } from '../world';
 import { FULL } from './CraneRise';
 
 export const SWEEP_DURATION = 140;
 export const CLICK = 8;
 export const SWEEP0 = 14;
 const SWEEP1 = 78;
-const CAM0 = 10;
+const CAM0 = 14; // 데모 10f → 14f: 경계가 토글을 지나는 순간(~20f)이 특写 안에 보이게 (카드 「按下后~6f扫过开关」)
 const CAM1 = 40;
 const LIGHTS = 76;
 
@@ -33,7 +34,7 @@ const TH = LAYOUT.thumbClip;
 const BTN = LAYOUT.primaryBtn;
 const Z0 = 3.6; // 토글이 화면에서 ~200px 가 되는 특写 (데모 2.0 × 132px 토글과 같은 체감 크기)
 
-const P0 = 1190; // 특写 화면 오른쪽 끝 바로 밖
+const P0 = 1110; // 토글 바로 오른쪽에서 출발 → 클릭 후 ~12f 에 토글 통과 (카드 인과: 「扫场起点紧贴开关」)
 const P1 = -560; // 전경 왼쪽 아래 모서리를 넘어서까지
 const SWEEP_EASE = bezier(0.3, 0, 0.35, 1);
 const pAt = (f: number) => mix(P0, P1, ramp(f, SWEEP0, SWEEP1 - SWEEP0, SWEEP_EASE));
@@ -91,7 +92,7 @@ const Pointer: React.FC<{ x: number; y: number; s: number; o: number }> = ({ x, 
 const DayWorld: React.FC<{ frame: number; knob: number }> = ({ frame, knob }) => (
   <>
     <StageBg night={false} frame={frame} />
-    <PageWindow tex="light" elevation={30}>
+    <PageWindow tex="light" elevation={30} patch={{ src: 'hi-sweep-light.png', ...HI.sweep }}>
       {/* 실제 토글: 트랙 층 + 손잡이 층(연속 이동, 앱과 같은 26px 이동량) */}
       <Img src={staticFile('textures/toggle-track.png')} style={{ position: 'absolute', left: TC.x, top: TC.y, width: TC.w, height: TC.h }} />
       <Img src={staticFile('textures/toggle-thumb.png')} style={{
@@ -108,7 +109,7 @@ const NightWorld: React.FC<{ frame: number; lights: number }> = ({ frame, lights
   return (
     <>
       <StageBg night frame={frame} />
-      <PageWindow tex="dark" elevation={30} rim={rim}>
+      <PageWindow tex="dark" elevation={30} rim={rim} patch={{ src: 'hi-sweep-dark.png', ...HI.sweep }}>
         {/* 여운: 다크 모드에서만 켜지는 빛 — 토글 → 「추가」 버튼 → 창 테두리 */}
         <div style={{
           position: 'absolute', left: TG.x, top: TG.y, width: TG.w, height: TG.h, borderRadius: 999,

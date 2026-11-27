@@ -174,7 +174,7 @@ export const ContrastGauges: React.FC = () => {
       }}>
         <div style={{ position: 'absolute', left: 48, top: 34 }}>
           <div style={{ fontSize: 44, fontWeight: 700, color: DARK.text, letterSpacing: '-0.02em' }}>색 대비 자동 검사</div>
-          <div style={{ marginTop: 6, fontSize: 32, fontWeight: 400, color: DARK.textMuted }}>두 테마의 글자·배경 조합 · WCAG AA 4.5 : 1</div>
+          <div style={{ marginTop: 6, fontSize: 32, fontWeight: 400, color: DARK.textMuted }}>두 테마 색 조합 · WCAG AA (글자 4.5 : 1 · UI 3 : 1)</div>
         </div>
         <div style={{
           position: 'absolute', right: 48, top: 50, height: 56, padding: '0 22px 0 18px', display: 'flex', alignItems: 'center', gap: 12, borderRadius: 28,
@@ -183,7 +183,7 @@ export const ContrastGauges: React.FC = () => {
           fontSize: 32, fontWeight: 700, color: ok ? DARK.success : DARK.primaryHover, whiteSpace: 'nowrap',
         }}>
           <span style={{ width: 12, height: 12, borderRadius: 6, background: ok ? DARK.success : DARK.primary, opacity: ok ? 1 : 0.45 + 0.55 * pulse }} />
-          {ok ? '29개 검사 모두 통과' : '대비 검사 중…'}
+          {ok ? '대비 테스트 29개 통과' : '대비 테스트 실행 중…'}
         </div>
         <div style={{ position: 'absolute', left: 48, right: 48, top: 152, height: 1, background: rgba('#ffffff', 0.06) }} />
         <div style={{ position: 'absolute', left: 0, top: 166, display: 'flex' }}>

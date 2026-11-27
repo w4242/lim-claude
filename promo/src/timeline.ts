@@ -41,7 +41,7 @@ export const SHOTS = Object.fromEntries(
 
 // 자막 (화면 공간). 문구는 화면이 확정된 뒤 다시 씀 (C1)
 export const CAPTIONS = [
-  { from: SHOTS.crane.from + 40, duration: 118, text: '요약 · 작업 목록 · 새 작업 추가를 한 화면에' },
+  { from: SHOTS.crane.from + 40, duration: 120, text: '요약 수치 · 작업 목록 · 추가 폼을 한 화면에' },
   { from: SHOTS.sweep.from + 50, duration: SHOTS.sweep.duration - 52, text: '고른 모드는 저장되고, 처음엔 OS 설정을 따릅니다' },
 ];
 

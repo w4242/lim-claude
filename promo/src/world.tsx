@@ -7,6 +7,7 @@ import { DARK, LIGHT, rgba } from './theme';
 
 export const LAYOUT = L;
 export const PAGE = { w: L.pageW, h: L.pageH };
+export const HI = L.hi; // 특写용 고해상도 패치 영역 (capture.mjs)
 // 화면에 보여 줄 '창' 영역: 콘텐츠(176–1104) 좌우 80px 여백 + 폼 카드 아래 여백까지
 export const WIN = { x: 96, y: 0, w: 1088, h: 812, r: 16 };
 
@@ -20,11 +21,13 @@ export const toScreen = ({ s, cx, cy }: Cam, wx: number, wy: number) => ({ x: (w
 
 // 실제 페이지 캡처를 담은 창. elevation = 그림자 높이(px), rim = 다크에서 창 테두리 인디고 빛(0–1)
 export const PageWindow: React.FC<{
-  tex: 'light' | 'dark' | 'light-done';
+  tex: 'light' | 'dark';
   elevation?: number;
   rim?: number;
+  // 특写 구간용 고해상도 패치 (같은 페이지를 더 높은 DSF 로 잘라 캡처한 것, 같은 좌표에 겹침)
+  patch?: { src: string; x: number; y: number; w: number; h: number };
   children?: React.ReactNode;
-}> = ({ tex, elevation = 28, rim = 0, children }) => {
+}> = ({ tex, elevation = 28, rim = 0, patch, children }) => {
   const dark = tex === 'dark';
   const e = elevation;
   const shadow = dark
@@ -33,6 +36,9 @@ export const PageWindow: React.FC<{
   return (
     <div style={{ position: 'absolute', left: WIN.x, top: WIN.y, width: WIN.w, height: WIN.h, borderRadius: WIN.r, overflow: 'hidden', boxShadow: shadow, background: dark ? DARK.bg : LIGHT.bg }}>
       <Img src={staticFile(`textures/${tex}.png`)} style={{ position: 'absolute', left: -WIN.x, top: -WIN.y, width: PAGE.w, height: PAGE.h }} />
+      {patch && (
+        <Img src={staticFile(`textures/${patch.src}`)} style={{ position: 'absolute', left: patch.x - WIN.x, top: patch.y - WIN.y, width: patch.w, height: patch.h }} />
+      )}
       <div style={{ position: 'absolute', left: -WIN.x, top: -WIN.y, width: PAGE.w, height: PAGE.h }}>{children}</div>
     </div>
   );

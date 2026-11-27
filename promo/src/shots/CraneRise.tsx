@@ -2,28 +2,30 @@
 // 유지한 조율값: 특写 hold 24f(+1.5% 호흡 推近) · 상승 24→126f, 대상점과 scale 이 같은 bezier(0.2,0,0.25,1)
 //   · 빠른 구간(25–64f)만 CameraMotionBlur(shutter 150, samples 10) · 비추적 영역 38%→100% (HOLD-2 부터 28f)
 //   · 시야 위쪽이 요소를 넘을 때 인디고 洗光(20f) · 창 그림자 6→34 · 배경 점 격자 0.35 시차
-//   · 134f 추적 행 상태 뒤집기(spring damping 16 / stiffness 190, 0.86→1) · 148–165 hold.
-// 다시 입힌 것: 가짜 렌더 큐 → lim-claude 실제 캡처, 추적 행 = 'API 응답 속도 측정'(진행 중 → 완료).
+//   · 134f 여운 이벤트(spring damping 16 / stiffness 190) · 그 뒤 hold.
+// 다시 입힌 것: 가짜 렌더 큐 → lim-claude 실제 캡처, 추적 행 = 'API 응답 속도 측정'.
+//   여운: 데모의 상태 뒤집기 대신 추적 행 하이라이트가 한 번 맥동하며 또렷해진다.
+//   (앱에는 상태를 바꾸는 기능이 없어서, 바뀌는 척하면 없는 기능을 암시하게 된다 — 독립 검수 P3)
+//   특写 2.6× 구간은 DSF 6 고해상도 패치를 겹쳐 텍스처 ≥ 2× 유지 (Q2).
 //   KPI 숫자 카운트는 실제 캡처 위에 글자를 덧그려야 해서 뺐다 (Q1: 기존 화면 복각 금지).
 import React from 'react';
-import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { CameraMotionBlur } from '@remotion/motion-blur';
 import { EASE, bezier, mix, ramp } from '../fixtures/Polish';
 import { springAt } from '../fixtures/Look';
 import { LIGHT, rgba } from '../theme';
-import { Cam, LAYOUT, PageWindow, WIN, camStyle } from '../world';
+import { Cam, HI, LAYOUT, PageWindow, WIN, camStyle } from '../world';
 
 export const CRANE_DURATION = 165;
 const HOLD = 24;
 const MOVE_END = 126;
 const BLUR_END = 64;
-const FLIP = 134;
+const PULSE = 119; // 여운 이벤트: 정지 hold ≥30f 확보 (162f 컷 기준)
 const crane = bezier(0.2, 0, 0.25, 1);
 
 const ROW = LAYOUT.rows[1]; // 추적 행
-const CELL = LAYOUT.statusCells[1];
 const S0 = 2.6;
-const F0 = { x: 560, y: ROW.y + ROW.h / 2 }; // 작업명·담당자·상태 배지가 한 화면에 들어오는 특写
+const F0 = { x: 500, y: ROW.y + ROW.h / 2 }; // 작업명·담당자·상태 배지가 한 화면에 들어오는 특写
 export const FULL: Cam = { s: 1.15, cx: 640, cy: 436 };
 
 export const craneCam = (frame: number): Cam & { visTop: number } => {
@@ -74,21 +76,15 @@ const World: React.FC<{ frame: number }> = ({ frame }) => {
   const elev = mix(6, 34, ramp(frame, HOLD + 30, MOVE_END - HOLD - 20, EASE.swift));
   const focus = mix(0.38, 1, ramp(frame, HOLD - 2, 28, EASE.out)); // 비추적 영역 불투명도
   const dim = 1 - focus;
-  const flip = frame >= FLIP ? springAt(frame, FLIP, { damping: 16, stiffness: 190 }) : 0;
-  const pop = 0.86 + 0.14 * flip;
+  const pulse = frame >= PULSE ? springAt(frame, PULSE, { damping: 16, stiffness: 190 }) : 0; // 0→1 (한 번 오버슈트)
+  const flare = frame >= PULSE ? Math.max(0, 1 - (frame - PULSE) / 18) : 0; // 맥동 순간의 빛, 18f 동안 사그라짐
+  const ring = frame >= PULSE ? Math.min(1, (frame - PULSE) / 20) : 0;
   const beat = 0.5 + 0.5 * Math.sin(frame / 5.5);
   const dotY = ROW.y + ROW.h / 2;
   const hole = { x: ROW.x - 10, y: ROW.y + 2, w: ROW.w + 20, h: ROW.h - 4 };
   const veil = rgba(LIGHT.bg, dim);
   return (
-    <PageWindow tex="light" elevation={elev}>
-      {/* 여운: 추적 행 상태 진행 중 → 완료 (실제 앱에서 바꾼 상태를 캡처한 칸) */}
-      {frame >= FLIP && (
-        <Img src={staticFile('textures/status-done.png')} style={{
-          position: 'absolute', left: CELL.x, top: CELL.y, width: CELL.w, height: CELL.h - 1,
-          transform: `scale(${pop.toFixed(4)})`, transformOrigin: '0% 50%',
-        }} />
-      )}
+    <PageWindow tex="light" elevation={elev} patch={{ src: 'hi-crane-light.png', ...HI.crane }}>
       {/* 초점: 추적 행만 또렷하게, 나머지는 베일 (구멍 낸 4장) */}
       {dim > 0.002 && (
         <>
@@ -101,9 +97,16 @@ const World: React.FC<{ frame: number }> = ({ frame }) => {
       {/* 추적 행 하이라이트 (앱 primary 인디고) */}
       <div style={{
         position: 'absolute', left: hole.x, top: hole.y, width: hole.w, height: hole.h, borderRadius: 8,
-        background: `linear-gradient(90deg, ${rgba(LIGHT.primary, 0.09)} 0%, ${rgba(LIGHT.primary, 0.04)} 60%, ${rgba(LIGHT.primary, 0.025)} 100%)`,
-        boxShadow: `inset 0 0 0 1px ${rgba(LIGHT.primary, 0.24)}`,
+        background: `linear-gradient(90deg, ${rgba(LIGHT.primary, 0.09 + 0.04 * pulse)} 0%, ${rgba(LIGHT.primary, 0.04 + 0.02 * pulse)} 60%, ${rgba(LIGHT.primary, 0.025)} 100%)`,
+        boxShadow: `inset 0 0 0 ${(1 + 0.5 * pulse).toFixed(2)}px ${rgba(LIGHT.primary, 0.24 + 0.2 * pulse)}, 0 0 ${(18 * flare).toFixed(1)}px ${rgba(LIGHT.primary, 0.35 * flare)}`,
       }} />
+      {/* 맥동 링: 행 테두리에서 한 번 퍼져 나감 (모서리 반경 안에서) */}
+      {ring > 0 && ring < 1 && (
+        <div style={{
+          position: 'absolute', left: hole.x - 10 * ring, top: hole.y - 6 * ring, width: hole.w + 20 * ring, height: hole.h + 12 * ring,
+          borderRadius: 8 + 6 * ring, border: `1.5px solid ${rgba(LIGHT.primary, 0.45 * (1 - ring))}`, boxSizing: 'border-box',
+        }} />
+      )}
       {/* 추적 점 + 호흡 링 (카드 왼쪽 여백) */}
       <div style={{ position: 'absolute', left: 157, top: dotY - 5, width: 10, height: 10, borderRadius: 5, background: LIGHT.primary }} />
       <div style={{

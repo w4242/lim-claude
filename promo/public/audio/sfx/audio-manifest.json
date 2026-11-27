@@ -22,7 +22,27 @@
       "is_preview": true,
       "downloaded_at": "2026-11-27T21:10:43.705482+00:00",
       "license_checked_at": "2026-11-27T21:10:43.705495+00:00",
-      "changes": [],
+      "changes": [
+        {
+          "derived_file": "fs-348225-norm.mp3",
+          "operation": "ffmpeg volume=+6.76dB (sample peak -1 dBFS 정규화), libmp3lame -q:a 2 재인코딩 (BGM 에 묻힘 — 독립 검수 A6)",
+          "sha256": "ddacf4893f2669f1619b54dfe2558b0ac43f03222ef37e1fbf03425d3478915a",
+          "analysis": {
+            "codec": "mp3",
+            "sample_rate": 48000,
+            "channels": 1,
+            "duration_seconds": 0.322021,
+            "sample_peak_dbfs": -1.13,
+            "rms_dbfs": -28.517,
+            "energy_window_seconds": 0.01,
+            "energy_peak_seconds": 0.015,
+            "active_start_seconds": 0.01,
+            "active_end_seconds": 0.16,
+            "activity_threshold_db_below_peak_rms": -40
+          },
+          "date": "2026-11-27"
+        }
+      ],
       "analysis": {
         "codec": "mp3",
         "sample_rate": 48000,

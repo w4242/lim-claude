@@ -2,9 +2,8 @@
 //
 // 산출물 (public/textures/):
 //   light.png / dark.png        — 같은 레이아웃의 라이트·다크 전체 페이지 (DSF 3)
-//   light-done.png              — 'API 응답 속도 측정' 행이 '완료'로 바뀐 상태 (크레인 샷 여운용)
-//   toggle-track.png / toggle-thumb.png — 라이트 테마 실제 토글의 트랙 층·손잡이 층(투명 배경), DSF 4
-//   status-progress.png / status-done.png — 해당 행의 상태 칸 잘라낸 이미지
+//   toggle-track.png / toggle-thumb.png — 라이트 테마 실제 토글의 트랙 층·손잡이 층(투명 배경), DSF 8
+//   hi-sweep-{light,dark}.png / hi-crane-light.png — 특写 구간용 고해상도 패치 (DSF 8 / 6)
 //   layout.json                 — 각 요소 bbox (페이지 CSS px 좌표)
 //
 // 데이터 정책: 화면의 담당자 이름 중 실명(임희섭)은 가상 이름으로 바꾼 뒤 캡처한다.
@@ -58,14 +57,6 @@ const bbox = (page, sel, all = false) =>
     [sel, all],
   );
 
-const setDone = (page) =>
-  page.evaluate(() => {
-    const row = [...document.querySelectorAll('tbody tr')].find((tr) => tr.textContent.includes('API 응답 속도 측정'));
-    const badge = row.querySelector('.badge');
-    badge.className = 'badge badge--done';
-    badge.textContent = '완료';
-  });
-
 const layout = {};
 
 // ── 라이트 / 다크 전체 페이지 (같은 레이아웃) ──
@@ -85,14 +76,6 @@ for (const theme of ['light', 'dark']) {
     layout.statusCells = await bbox(page, 'tbody td:last-child', true);
     layout.formCard = await bbox(page, 'main > section.card:last-of-type');
     layout.primaryBtn = await bbox(page, '.button--primary');
-    // 크레인 여운: 추적 행(1번, API 응답 속도 측정) 상태 칸 진행 중 → 완료
-    const cell = layout.statusCells[1];
-    const clip = { x: cell.x, y: cell.y, width: cell.w, height: cell.h - 1 };
-    await page.screenshot({ path: `${OUT}/status-progress.png`, clip });
-    await setDone(page);
-    await page.waitForTimeout(100);
-    await page.screenshot({ path: `${OUT}/status-done.png`, clip });
-    await page.screenshot({ path: `${OUT}/light-done.png`, fullPage: true });
   }
   await ctx.close();
 }
@@ -126,6 +109,44 @@ for (const theme of ['light', 'dark']) {
     clip: { x: th.x - tp, y: th.y - tp, width: th.w + tp * 2, height: th.h + tp * 2 },
     omitBackground: true,
   });
+  await ctx.close();
+}
+
+// ── 특写용 고해상도 패치 (Q2: 텍스처 ≥ 화면 2배) ──
+//   S4 토글 특写(3.6×): 오른쪽 위 영역, 라이트·다크 둘 다 DSF 8 → 8/3.6 = 2.2×
+//   S2 행 특写(2.6×): 작업 목록 영역, 라이트 DSF 6 → 6/2.6 = 2.3×
+//   토글 층도 DSF 8 로 다시 캡처
+const HI = {
+  sweep: { x: 600, y: 0, w: 584, h: 300, dsf: 8 },
+  crane: { x: 140, y: 250, w: 820, h: 460, dsf: 6 },
+};
+layout.hi = HI;
+for (const theme of ['light', 'dark']) {
+  const { ctx, page } = await open(theme, HI.sweep.dsf);
+  const r = HI.sweep;
+  await page.screenshot({ path: `${OUT}/hi-sweep-${theme}.png`, clip: { x: r.x, y: r.y, width: r.w, height: r.h } });
+  if (theme === 'light') {
+    const t = layout.toggle, pad = 6;
+    await page.evaluate(() => (document.querySelector('.theme-toggle__thumb').style.visibility = 'hidden'));
+    await page.screenshot({ path: `${OUT}/toggle-track.png`, clip: { x: t.x - pad, y: t.y - pad, width: t.w + pad * 2, height: t.h + pad * 2 } });
+    const th = layout.thumb, tp = 5;
+    await page.evaluate(() => {
+      document.querySelector('.theme-toggle__thumb').style.visibility = 'visible';
+      const s = document.createElement('style');
+      s.textContent = `html,body,.header{background:transparent!important}
+        .theme-toggle__track{background:transparent!important;border-color:transparent!important}
+        .theme-toggle__icon,.header__brand,.header__nav,main{visibility:hidden!important}
+        .header{border-color:transparent!important}`;
+      document.head.appendChild(s);
+    });
+    await page.screenshot({ path: `${OUT}/toggle-thumb.png`, clip: { x: th.x - tp, y: th.y - tp, width: th.w + tp * 2, height: th.h + tp * 2 }, omitBackground: true });
+  }
+  await ctx.close();
+}
+{
+  const { ctx, page } = await open('light', HI.crane.dsf);
+  const r = HI.crane;
+  await page.screenshot({ path: `${OUT}/hi-crane-light.png`, clip: { x: r.x, y: r.y, width: r.w, height: r.h } });
   await ctx.close();
 }
 
