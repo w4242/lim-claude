@@ -5,3 +5,4 @@ out/*.mp4
 !out/promo-nobgm.mp4
 .render-public/
 ref-demos/
+out/*.zip
